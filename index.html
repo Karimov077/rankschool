@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UstozRank — O'quvchilar Reyting Tizimi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==================== TOAST NOTIFICATIONS ==================== -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- ==================== MAIN APPLICATION APP SHELL ==================== -->
+  <div id="appShell" class="app-shell">
+    
+    <!-- Mobile Backdrop -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div class="brand-info">
+            <span class="brand-name">Rank</span>
+            <span class="brand-tag" data-i18n="appSubtitle">Reyting & Monitoring</span>
+          </div>
+        </div>
+        <button id="closeSidebarBtn" class="btn-icon mobile-only" aria-label="Menyuni yopish">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Quick Action (Admin Only) -->
+      <div class="quick-action-sidebar admin-only" id="sidebarQuickPointSection">
+        <button id="sidebarQuickPointBtn" class="btn btn-accent btn-block">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          <span data-i18n="quickAddPoint">Tezkor Ball Berish</span>
+        </button>
+      </div>
+
+      <!-- Sidebar Navigation Links -->
+      <nav class="sidebar-nav">
+        <div class="nav-section-title" data-i18n="navMain">ASOSIY</div>
+        
+        <a href="#dashboard" class="nav-link active" data-view="dashboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span data-i18n="navDashboard">Boshqaruv paneli</span>
+        </a>
+
+        <a href="#global-ranking" class="nav-link" data-view="global-ranking">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="7"></circle>
+            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+          </svg>
+          <span data-i18n="navGlobalRanking">Umumiy Reyting</span>
+        </a>
+
+        <a href="#weekly-ranking" class="nav-link" data-view="weekly-ranking">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span data-i18n="navWeeklyRanking">Haftalik Reyting</span>
+          <span class="badge badge-pulse" data-i18n="badgeNew">Yangi</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="navStudentsGroups">O'QUVCHILAR & GURUHLAR</div>
+        
+        <a href="#groups" class="nav-link" data-view="groups">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span data-i18n="navGroups">Guruhlar</span>
+        </a>
+
+        <a href="#students" class="nav-link" data-view="students">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <polyline points="16 11 18 13 22 9"></polyline>
+          </svg>
+          <span data-i18n="navStudents">O'quvchilar</span>
+        </a>
+
+        <a href="#add-points" class="nav-link admin-only" data-view="add-points">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <span data-i18n="navAddPoints">Ball Qo'shish</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="navAnalytics">TAHLIL VA SOZLAMALAR</div>
+        
+        <a href="#statistics" class="nav-link" data-view="statistics">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span data-i18n="navStatistics">Statistika</span>
+        </a>
+
+        <a href="#data-management" class="nav-link admin-only" data-view="data-management">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+          </svg>
+          <span data-i18n="navBackup">Zaxira & Ma'lumotlar</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Footer (Status Indicator) -->
+      <div class="sidebar-footer">
+        <div id="sidebarUserBox" class="user-status-card">
+          <!-- Populated dynamically: either Ustoz Admin or Ota-ona / O'quvchi rejim -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
+      <!-- HEADER -->
+      <header class="app-header">
+        <div class="header-left">
+          <button id="openSidebarBtn" class="btn-icon mobile-only" aria-label="Menyuni ochish">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          
+          <div class="header-search-bar">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="globalSearchInput" placeholder="O'quvchi yoki guruh nomini qidirish...">
+            <button id="clearSearchBtn" class="search-clear hidden" title="Tozalash">&times;</button>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Date Display -->
+          <div class="date-indicator">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span id="currentDateDisplay">19-sentabr, 2026</span>
+          </div>
+
+          <!-- Language Selector -->
+          <div class="language-dropdown-wrapper">
+            <select id="languageSelect" class="lang-select" aria-label="Tilni tanlash">
+              <option value="uz">🇺🇿 O'zbek</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="ru">🇷🇺 Русский</option>
+              <option value="kk">🇰🇿 Қазақша</option>
+            </select>
+          </div>
+
+          <!-- Dark Mode Toggle -->
+          <button id="themeToggleBtn" class="theme-toggle-btn" title="Yorug' / Qorong'u rejim" aria-label="Rejimni o'zgartirish">
+            <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+
+          <!-- Top Login / Admin Action Trigger -->
+          <div id="headerAuthContainer">
+            <!-- Populated dynamically: Either "Ustoz Kirish" button or "+ Ball berish" & "Chiqish" -->
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT AREA -->
+      <main id="contentArea" class="content-area">
+
+        <!-- ==================== VIEW 1: DASHBOARD ==================== -->
+        <section id="dashboardView" class="view-section active">
+          <!-- Welcome Hero Banner -->
+          <div class="welcome-banner">
+            <div class="welcome-text">
+              <h2 id="welcomeHeroTitle">O'quvchilar Reytingi & Natijalar Portali 👋</h2>
+              <p id="welcomeHeroSubtitle">O'quvchilar, ota-onalar va ustozlar uchun shaffof dars faolligi va monitoring tizimi</p>
+            </div>
+            <div class="welcome-actions admin-only">
+              <button class="btn btn-white btn-sm" onclick="app.openModal('addStudentModal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                <span data-i18n="addStudent">+ O'quvchi qo'shish</span>
+              </button>
+              <button class="btn btn-white btn-sm" onclick="app.openModal('addGroupModal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                <span data-i18n="addGroup">+ Guruh ochish</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon-wrapper bg-blue-subtle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statTotalStudents">Jami O'quvchilar</span>
+                <h3 id="statTotalStudents" class="stat-value">0</h3>
+                <span class="stat-subtext" id="statGroupsCountSub">0 ta guruhda</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrapper bg-cyan-subtle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 14 14"></polyline>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statWeeklyPoints">Bu Hafta Berilgan</span>
+                <h3 id="statWeeklyPoints" class="stat-value">0</h3>
+                <span class="stat-subtext text-success" id="statWeeklyPointsChange">+0 ball</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrapper bg-emerald-subtle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statTotalPoints">Jami Berilgan Ball</span>
+                <h3 id="statTotalPoints" class="stat-value">0</h3>
+                <span class="stat-subtext" id="statTasksCountSub">0 ta baholash</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrapper bg-amber-subtle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="8" r="7"></circle>
+                  <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statTopStudent">Yetakchi O'quvchi</span>
+                <h3 id="statTopStudentName" class="stat-value text-truncate">—</h3>
+                <span class="stat-subtext" id="statTopStudentPoints">0 ball</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top 3 Podium Section -->
+          <div class="section-card podium-section">
+            <div class="section-header">
+              <div>
+                <h3 class="section-title" data-i18n="podiumTitle">🏆 Top 3 Yetakchi O'quvchilar</h3>
+                <p class="section-subtitle" data-i18n="podiumSubtitle">Eng yuqori umumiy ball to'plagan eng faol o'quvchilar</p>
+              </div>
+            </div>
+            <div id="podiumContainer" class="podium-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Main Global Ranking Table with Filters -->
+          <div class="section-card">
+            <div class="section-header flex-wrap">
+              <div>
+                <h3 class="section-title" data-i18n="rankingTableTitle">📊 Umumiy O'quvchilar Reytingi</h3>
+                <p class="section-subtitle" data-i18n="rankingTableSubtitle">Barcha o'quvchilarning ballari va ko'rsatkichlari</p>
+              </div>
+              
+              <!-- Filter Controls -->
+              <div class="filter-bar">
+                <div class="filter-item">
+                  <label for="dashFilterGroup" data-i18n="filterGroupLabel">Guruh:</label>
+                  <select id="dashFilterGroup" class="select-input">
+                    <option value="all">Barcha guruhlar</option>
+                  </select>
+                </div>
+                <div class="filter-item">
+                  <label for="dashFilterTime" data-i18n="filterPeriodLabel">Davr:</label>
+                  <select id="dashFilterTime" class="select-input">
+                    <option value="all" data-i18n="periodAllTime">Barcha vaqt</option>
+                    <option value="week" data-i18n="periodWeek">Bu hafta</option>
+                    <option value="month" data-i18n="periodMonth">Bu oy</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ranking Table -->
+            <div class="table-responsive">
+              <table class="data-table" id="dashboardRankingTable">
+                <thead>
+                  <tr>
+                    <th style="width: 70px;" data-i18n="thRank">O'rin</th>
+                    <th data-i18n="thStudent">O'quvchi</th>
+                    <th data-i18n="thGroup">Guruh</th>
+                    <th class="text-right" data-i18n="thWeeklyPoints">Haftalik Ball</th>
+                    <th class="text-right" data-i18n="thTasksCount">Topshiriqlar</th>
+                    <th class="text-right" data-i18n="thTotalPoints">Umumiy Ball</th>
+                    <th class="text-center" style="width: 140px;" data-i18n="thActions">Amallar</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardRankingTbody">
+                  <!-- Generated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 2: GLOBAL RANKING ==================== -->
+        <section id="globalRankingView" class="view-section">
+          <div class="page-title-row">
+            <div>
+              <h2 class="page-title" data-i18n="globalRankingPageTitle">Umumiy O'quvchilar Reytingi</h2>
+              <p class="page-subtitle" data-i18n="globalRankingPageSubtitle">Barcha guruhlar bo'yicha to'liq umumiy jadval</p>
+            </div>
+            <div class="filter-bar">
+              <select id="globalFilterGroup" class="select-input">
+                <option value="all">Barcha guruhlar</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 80px;" data-i18n="thRank">O'rin</th>
+                    <th data-i18n="thStudent">O'quvchi F.I.Sh.</th>
+                    <th data-i18n="thGroup">Guruh</th>
+                    <th class="text-right" data-i18n="thWeekly">Haftalik</th>
+                    <th class="text-right" data-i18n="thMonthly">Oylik</th>
+                    <th class="text-right" data-i18n="thTasksCount">Topshiriqlar</th>
+                    <th class="text-right" data-i18n="thTotalPoints">Jami Ball</th>
+                    <th class="text-center" data-i18n="thActions">Amallar</th>
+                  </tr>
+                </thead>
+                <tbody id="globalRankingFullTbody">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 3: WEEKLY RANKING ==================== -->
+        <section id="weeklyRankingView" class="view-section">
+          <div class="page-title-row">
+            <div>
+              <h2 class="page-title" data-i18n="weeklyRankingPageTitle">Haftalik Reyting (Joriy Hafta)</h2>
+              <p class="page-subtitle" id="currentWeekRangeSubtitle">Dushanbadan yakshanbagacha to'plangan ballar</p>
+            </div>
+            <div class="weekly-notice-badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span data-i18n="weeklyResetNotice">Hafta tugaganda umumiy ballar saqlanadi, haftalik reyting esa yangilanadi</span>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 80px;" data-i18n="thWeeklyRank">Haftalik O'rin</th>
+                    <th data-i18n="thStudent">O'quvchi</th>
+                    <th data-i18n="thGroup">Guruh</th>
+                    <th class="text-right" data-i18n="thPointsThisWeek">Bu Hafta To'plangan Ball</th>
+                    <th class="text-right" data-i18n="thTotalPoints">Umumiy Tarixiy Ball</th>
+                    <th class="text-center" data-i18n="thActions">Harakat</th>
+                  </tr>
+                </thead>
+                <tbody id="weeklyRankingTbody">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 4: GROUPS ==================== -->
+        <section id="groupsView" class="view-section">
+          <div class="page-title-row">
+            <div>
+              <h2 class="page-title" data-i18n="groupsPageTitle">O'quv Guruhlari</h2>
+              <p class="page-subtitle" data-i18n="groupsPageSubtitle">Sinf guruhlari, ularning ballari va ko'rsatkichlari</p>
+            </div>
+            <button class="btn btn-primary admin-only" onclick="app.openModal('addGroupModal')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span data-i18n="addGroup">+ Yangi Guruh Yaratish</span>
+            </button>
+          </div>
+
+          <div id="groupsContainer" class="groups-grid">
+            <!-- Dynamic Group Cards -->
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 5: SINGLE GROUP DETAIL ==================== -->
+        <section id="groupDetailView" class="view-section">
+          <div class="breadcrumb-nav">
+            <button class="btn-text-back" onclick="app.navigate('groups')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span data-i18n="backToGroups">Barcha guruhlarga qaytish</span>
+            </button>
+          </div>
+
+          <div class="group-hero-card">
+            <div class="group-hero-header">
+              <div>
+                <span class="group-hero-badge" id="groupHeroRank">#1 O'rindagi guruh</span>
+                <h2 class="group-hero-title" id="groupHeroName">Frontend 10:30</h2>
+                <p class="group-hero-desc" id="groupHeroDesc">Dasturlash asoslari va veb-texnologiyalar</p>
+              </div>
+              <div class="group-hero-actions admin-only">
+                <button class="btn btn-outline-white btn-sm" id="editCurrentGroupBtn" data-i18n="editGroup">
+                  Tahrirlash
+                </button>
+                <button class="btn btn-white btn-sm" id="groupAddStudentBtn" data-i18n="addStudent">
+                  + O'quvchi qo'shish
+                </button>
+              </div>
+            </div>
+
+            <div class="group-hero-stats">
+              <div class="hero-stat-box">
+                <span class="hero-stat-title" data-i18n="statStudentCount">O'quvchilar soni</span>
+                <span class="hero-stat-num" id="groupDetailStudentCount">0</span>
+              </div>
+              <div class="hero-stat-box">
+                <span class="hero-stat-title" data-i18n="statGroupTotalPoints">Jami to'plangan ball</span>
+                <span class="hero-stat-num" id="groupDetailTotalPoints">0</span>
+              </div>
+              <div class="hero-stat-box">
+                <span class="hero-stat-title" data-i18n="statAvgPoints">O'rtacha ball / o'quvchi</span>
+                <span class="hero-stat-num" id="groupDetailAvgPoints">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card mt-4">
+            <div class="section-header">
+              <div>
+                <h3 class="section-title" data-i18n="groupRankingTitle">Guruh O'quvchilari Reytingi</h3>
+                <p class="section-subtitle" data-i18n="groupRankingSubtitle">Kategoriyalar bo'yicha ballar taqsimoti</p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 70px;" data-i18n="thRank">O'rin</th>
+                    <th data-i18n="thStudent">O'quvchi</th>
+                    <th class="text-right" data-i18n="catClass">Dars faolligi</th>
+                    <th class="text-right" data-i18n="catHomework">Uyga vazifa</th>
+                    <th class="text-right" data-i18n="catExtra">Qo'shimcha</th>
+                    <th class="text-right" data-i18n="thWeekly">Haftalik</th>
+                    <th class="text-right" data-i18n="thTotalPoints">Jami Ball</th>
+                    <th class="text-center" data-i18n="thActions">Amallar</th>
+                  </tr>
+                </thead>
+                <tbody id="groupStudentsTbody">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 6: STUDENTS ==================== -->
+        <section id="studentsView" class="view-section">
+          <div class="page-title-row">
+            <div>
+              <h2 class="page-title" data-i18n="studentsPageTitle">Barcha O'quvchilar</h2>
+              <p class="page-subtitle" data-i18n="studentsPageSubtitle">O'quvchilar ro'yxati va profil ko'rsatkichlari</p>
+            </div>
+            <div class="page-actions admin-only">
+              <button class="btn btn-primary" onclick="app.openModal('addStudentModal')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span data-i18n="addStudent">+ Yangi O'quvchi Qo'shish</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="filter-bar mb-3">
+              <div class="filter-item search-filter">
+                <input type="text" id="studentsSearchInput" class="text-input" placeholder="Ism yoki telefon bo'yicha qidirish...">
+              </div>
+              <div class="filter-item">
+                <select id="studentsFilterGroup" class="select-input">
+                  <option value="all">Barcha guruhlar</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="thStudent">F.I.Sh.</th>
+                    <th data-i18n="thGroup">Guruh</th>
+                    <th data-i18n="thPhone">Telefon</th>
+                    <th class="text-right" data-i18n="thGlobalRank">Reyting O'rni</th>
+                    <th class="text-right" data-i18n="thTotalPoints">Jami Ball</th>
+                    <th class="text-center" style="width: 180px;" data-i18n="thActions">Boshqaruv</th>
+                  </tr>
+                </thead>
+                <tbody id="studentsListTbody">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 7: ADD POINTS FORM (ADMIN ONLY) ==================== -->
+        <section id="addPointsView" class="view-section">
+          <div class="page-title-row">
+            <div>
+              <h2 class="page-title" data-i18n="addPointsPageTitle">Tezkor Ball Qo'shish Formasi</h2>
+              <p class="page-subtitle" data-i18n="addPointsPageSubtitle">Dars davomida o'quvchilarga rag'bat yoki jarima ballarini tezkor kiritish</p>
+            </div>
+          </div>
+
+          <div class="point-form-container">
+            <div class="section-card point-form-card">
+              <form id="standaloneAddPointsForm">
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label for="pointFormGroup"><span data-i18n="stepGroup">1. Guruhni tanlang</span> <span class="required">*</span></label>
+                    <select id="pointFormGroup" class="select-input select-lg" required>
+                      <option value="">-- Guruhni tanlang --</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="pointFormStudent"><span data-i18n="stepStudent">2. O'quvchini tanlang</span> <span class="required">*</span></label>
+                    <select id="pointFormStudent" class="select-input select-lg" required disabled>
+                      <option value="">-- Avval guruhni tanlang --</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Quick Point Chips -->
+                <div class="form-group">
+                  <label><span data-i18n="stepPoints">3. Ball miqdorini tanlang yoki yozing</span> <span class="required">*</span></label>
+                  <div class="quick-chips-wrapper">
+                    <button type="button" class="point-chip chip-pos" data-val="5">+5 ball</button>
+                    <button type="button" class="point-chip chip-pos active" data-val="10">+10 ball</button>
+                    <button type="button" class="point-chip chip-pos" data-val="15">+15 ball</button>
+                    <button type="button" class="point-chip chip-pos" data-val="20">+20 ball</button>
+                    <button type="button" class="point-chip chip-pos" data-val="30">+30 ball</button>
+                    <button type="button" class="point-chip chip-neg" data-val="-5">-5 ball</button>
+                    <button type="button" class="point-chip chip-neg" data-val="-10">-10 ball</button>
+                  </div>
+                  <div class="input-wrapper mt-2">
+                    <input type="number" id="pointFormCustomVal" class="text-input" placeholder="Ball (masalan: 10 yoki -5)" value="10" required>
+                  </div>
+                </div>
+
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label for="pointFormCategory"><span data-i18n="stepCategory">4. Kategoriya</span> <span class="required">*</span></label>
+                    <select id="pointFormCategory" class="select-input" required>
+                      <option value="Darsdagi faollik">Darsdagi faollik</option>
+                      <option value="Uyga vazifa">Uyga vazifa</option>
+                      <option value="Qo‘shimcha vazifa">Qo‘shimcha vazifa</option>
+                      <option value="Test">Test</option>
+                      <option value="Boshqa">Boshqa</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="pointFormDate"><span data-i18n="stepDate">5. Sana</span> <span class="required">*</span></label>
+                    <input type="date" id="pointFormDate" class="text-input" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="pointFormDesc" data-i18n="stepDesc">6. Tavsif / Izoh</label>
+                  <input type="text" id="pointFormDesc" class="text-input" placeholder="Masalan: Uy vazifasi to'liq, darsda faol qatnashdi">
+                  
+                  <div class="preset-descriptions">
+                    <span class="preset-label" data-i18n="quickDescriptions">Tezkor izohlar:</span>
+                    <button type="button" class="preset-tag" data-text="Darsda a'lo faollik">Darsda a'lo faollik</button>
+                    <button type="button" class="preset-tag" data-text="Uy vazifasi to'liq">Uy vazifasi to'liq</button>
+                    <button type="button" class="preset-tag" data-text="Qo'shimcha amaliy topshiriq">Qo'shimcha amaliy topshiriq</button>
+                    <button type="button" class="preset-tag" data-text="Testdan a'lo natija">Testdan a'lo natija</button>
+                    <button type="button" class="preset-tag text-danger" data-text="Vazifa bajarilmagan">- Vazifa bajarilmagan</button>
+                  </div>
+                </div>
+
+                <div class="form-actions-row">
+                  <button type="reset" class="btn btn-secondary" data-i18n="btnReset">Tozalash</button>
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span data-i18n="btnSavePoint">Ballni Saqlash</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 8: STATISTICS ==================== -->
+        <section id="statisticsView" class="view-section">
+          <div class="page-title-row">
+            <div>
+              <h2 class="page-title" data-i18n="statsPageTitle">Umumiy Statistika va Tahlil</h2>
+              <p class="page-subtitle" data-i18n="statsPageSubtitle">O'quv jarayoni va topshiriqlar bo'yicha to'liq tahliliy ko'rsatkichlar</p>
+            </div>
+          </div>
+
+          <!-- Highlight KPI cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon-wrapper bg-blue-subtle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statTotalAssessments">Jami Baholashlar</span>
+                <h3 id="statsTotalTransactions" class="stat-value">0</h3>
+                <span class="stat-subtext" data-i18n="statTransactionsSub">Tranzaksiyalar soni</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrapper bg-emerald-subtle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statBestStudent">Eng Faol O'quvchi</span>
+                <h3 id="statsBestStudent" class="stat-value text-truncate">—</h3>
+                <span class="stat-subtext" id="statsBestStudentPoints">0 ball</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrapper bg-purple-subtle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statBestGroup">Eng Yaxshi Guruh</span>
+                <h3 id="statsBestGroup" class="stat-value text-truncate">—</h3>
+                <span class="stat-subtext" id="statsBestGroupPoints">0 ball</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrapper bg-amber-subtle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statAvgStudentPoints">O'rtacha Ball / Talaba</span>
+                <h3 id="statsAvgPointsPerStudent" class="stat-value">0</h3>
+                <span class="stat-subtext" data-i18n="statOverallIndicator">Umumiy ko'rsatkich</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts and Breakdowns -->
+          <div class="analytics-grid">
+            <!-- Category Distribution -->
+            <div class="section-card">
+              <h3 class="section-title mb-1" data-i18n="categoryShareTitle">Kategoriyalar Bo'yicha Ballar Ulushi</h3>
+              <p class="section-subtitle mb-4" data-i18n="categoryShareSubtitle">Qaysi faoliyat turidan ko'proq ball berilgan</p>
+              <div id="categoryProgressContainer" class="category-progress-list">
+                <!-- Dynamically generated bars -->
+              </div>
+            </div>
+
+            <!-- Group Comparison -->
+            <div class="section-card">
+              <h3 class="section-title mb-1" data-i18n="groupCompTitle">Guruhlar O'rtasidagi Raqobat</h3>
+              <p class="section-subtitle mb-4" data-i18n="groupCompSubtitle">Guruhlar jami ballari solishtirmasi</p>
+              <div id="groupComparisonContainer" class="group-bars-list">
+                <!-- Dynamically generated bars -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 9: DATA MANAGEMENT (ADMIN ONLY) ==================== -->
+        <section id="dataManagementView" class="view-section">
+          <div class="page-title-row">
+            <div>
+              <h2 class="page-title" data-i18n="backupPageTitle">Zaxira Nusxa va Ma'lumotlar Boshqaruvi</h2>
+              <p class="page-subtitle" data-i18n="backupPageSubtitle">Brauzer xotirasi tozalansa ma'lumotlar yo'qolmasligi uchun zaxira oling</p>
+            </div>
+          </div>
+
+          <div class="backup-cards-grid">
+            <!-- Export Card -->
+            <div class="section-card backup-card">
+              <div class="backup-icon-box text-primary">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </div>
+              <h3 class="backup-title" data-i18n="exportTitle">JSON Faylga Eksport Qilish</h3>
+              <p class="backup-desc" data-i18n="exportDesc">Barcha guruhlar, o'quvchilar va ballar tarixini kompyuteringizga .json fayl sifatida yuklab oling.</p>
+              <button id="exportJsonBtn" class="btn btn-primary btn-block">
+                <span data-i18n="btnExport">Eksport Qilish (.json)</span>
+              </button>
+            </div>
+
+            <!-- Import Card -->
+            <div class="section-card backup-card">
+              <div class="backup-icon-box text-success">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <h3 class="backup-title" data-i18n="importTitle">Zaxiradan Tiklash (Import)</h3>
+              <p class="backup-desc" data-i18n="importDesc">Avval saqlab qo'yilgan .json zaxira faylini yuklab tizim ma'lumotlarini to'liq tiklang.</p>
+              <label class="btn btn-secondary btn-block file-upload-btn">
+                <span data-i18n="btnImport">Faylni Tanlash (.json)</span>
+                <input type="file" id="importJsonFileInput" accept=".json" class="hidden">
+              </label>
+            </div>
+
+            <!-- Copy Backup Text Card -->
+            <div class="section-card backup-card">
+              <div class="backup-icon-box text-cyan">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </div>
+              <h3 class="backup-title" data-i18n="textBackupTitle">Matn Ko'rinishida Nusxalash</h3>
+              <p class="backup-desc" data-i18n="textBackupDesc">JSON ma'lumotlarini to'g'ridan-to'g'ri clipboardga ko'chirib olish yoki qo'lda kiritish.</p>
+              <button id="openRawJsonModalBtn" class="btn btn-outline btn-block">
+                <span data-i18n="btnRawJson">JSON Matnini Ko'rish / Kiritish</span>
+              </button>
+            </div>
+
+            <!-- Reset / Clear Card -->
+            <div class="section-card backup-card border-danger">
+              <div class="backup-icon-box text-danger">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </div>
+              <h3 class="backup-title text-danger" data-i18n="clearTitle">Barcha Ma'lumotlarni Tozalash</h3>
+              <p class="backup-desc" data-i18n="clearDesc">Tizimdagi barcha guruhlar, talabalar va ballar tarixini butunlay o'chirib tashlash.</p>
+              <button id="clearAllDataBtn" class="btn btn-danger btn-block">
+                <span data-i18n="btnClear">Tozalash (Reset)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Demo Data Banner -->
+          <div class="demo-seed-card mt-4">
+            <div class="demo-seed-content">
+              <h4 data-i18n="demoBannerTitle">Namunaviy Ma'lumotlar Bilan Sinab Ko'rish</h4>
+              <p data-i18n="demoBannerDesc">Agar tizim bo'sh bo'lsa yoki sinab ko'rmoqchi bo'lsangiz, bir tugma bilan namunaviy guruhlar va o'quvchilarni yuklang.</p>
+            </div>
+            <button id="loadDemoDataBtn" class="btn btn-accent" data-i18n="btnLoadDemo">
+              Namunaviy ma'lumotlarni yuklash
+            </button>
+          </div>
+
+          <!-- Change Admin Password Card -->
+          <div class="section-card mt-4">
+            <div class="section-header">
+              <div>
+                <h3 class="section-title" data-i18n="changePassTitle">Admin Parolini O'zgartirish</h3>
+                <p class="section-subtitle" data-i18n="changePassSubtitle">Tizimga kirish parolini yangilash</p>
+              </div>
+            </div>
+            <form id="changePasswordForm" class="password-change-form">
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="newAdminPass" data-i18n="newPassLabel">Yangi parol</label>
+                  <input type="password" id="newAdminPass" class="text-input" placeholder="Yangi parol (kamida 4 belgi)" required minlength="4">
+                </div>
+                <div class="form-group">
+                  <label for="confirmAdminPass" data-i18n="confirmPassLabel">Yangi parolni tasdiqlang</label>
+                  <input type="password" id="confirmAdminPass" class="text-input" placeholder="Parolni takrorlang" required minlength="4">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" data-i18n="btnUpdatePass">Parolni Yangilash</button>
+            </form>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 0. TEACHER LOGIN MODAL -->
+  <div id="teacherLoginModal" class="modal-overlay hidden">
+    <div class="modal-container modal-sm">
+      <div class="modal-header">
+        <div class="login-modal-header-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="modal-title" data-i18n="teacherLoginModalTitle">Ustoz Kirish Paneli</h3>
+          <p class="login-modal-subtitle" data-i18n="teacherLoginModalSubtitle">Ball berish va boshqaruv uchun kiring</p>
+        </div>
+        <button class="btn-close-modal" onclick="app.closeModal('teacherLoginModal')">&times;</button>
+      </div>
+
+      <form id="teacherLoginForm" class="modal-body">
+        <div class="form-group">
+          <label for="modalLoginUsername" data-i18n="loginUsernameLabel">Login (Foydalanuvchi)</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <input type="text" id="modalLoginUsername" placeholder="" required autocomplete="username">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="modalLoginPassword" data-i18n="loginPasswordLabel">Parol</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <input type="password" id="modalLoginPassword" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+        </div>
+
+        <div id="modalLoginError" class="auth-error-msg hidden"></div>
+
+        <div class="modal-footer" style="padding-left: 0; padding-right: 0; padding-bottom: 0; background: transparent;">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('teacherLoginModal')" data-i18n="btnCancel">Bekor qilish</button>
+          <button type="submit" class="btn btn-primary">
+            <span data-i18n="btnSignIn">Tizimga kirish</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 1. ADD / EDIT GROUP MODAL -->
+  <div id="groupModal" class="modal-overlay hidden">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="groupModalTitle" class="modal-title">Yangi Guruh Yaratish</h3>
+        <button class="btn-close-modal" onclick="app.closeModal('groupModal')">&times;</button>
+      </div>
+      <form id="groupForm" class="modal-body">
+        <input type="hidden" id="groupEditId">
+        <div class="form-group">
+          <label for="groupNameInput"><span data-i18n="groupNameInputLabel">Guruh nomi</span> <span class="required">*</span></label>
+          <input type="text" id="groupNameInput" class="text-input" placeholder="Masalan: Frontend 10:30" required>
+        </div>
+        <div class="form-group">
+          <label for="groupDescInput" data-i18n="groupDescInputLabel">Qisqacha tavsif</label>
+          <textarea id="groupDescInput" class="text-input" rows="3" placeholder="Masalan: HTML, CSS, JavaScript guruhi"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('groupModal')" data-i18n="btnCancel">Bekor qilish</button>
+          <button type="submit" class="btn btn-primary" data-i18n="btnSave">Saqlash</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. ADD / EDIT STUDENT MODAL -->
+  <div id="studentModal" class="modal-overlay hidden">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="studentModalTitle" class="modal-title">Yangi O'quvchi Qo'shish</h3>
+        <button class="btn-close-modal" onclick="app.closeModal('studentModal')">&times;</button>
+      </div>
+      <form id="studentForm" class="modal-body">
+        <input type="hidden" id="studentEditId">
+        
+        <div class="form-group">
+          <label for="studentNameInput"><span data-i18n="studentNameInputLabel">To'liq F.I.Sh.</span> <span class="required">*</span></label>
+          <input type="text" id="studentNameInput" class="text-input" placeholder="Masalan: Aliyev Azizbek" required>
+        </div>
+
+        <div class="form-group">
+          <label for="studentGroupSelect"><span data-i18n="studentGroupSelectLabel">Guruh</span> <span class="required">*</span></label>
+          <select id="studentGroupSelect" class="select-input" required>
+            <option value="">-- Guruhni tanlang --</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="studentPhoneInput" data-i18n="studentPhoneInputLabel">Telefon raqam (ixtiyoriy)</label>
+          <input type="tel" id="studentPhoneInput" class="text-input" placeholder="+998 90 123 45 67">
+        </div>
+
+        <div class="form-group" id="initialPointsGroup">
+          <label for="studentInitialPoints" data-i18n="studentInitialPointsLabel">Boshlang'ich ball</label>
+          <input type="number" id="studentInitialPoints" class="text-input" value="0" min="0">
+          <small class="form-hint" data-i18n="initialPointsHint">O'quvchi qo'shilganda beriladigan boshlang'ich rag'bat balli</small>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('studentModal')" data-i18n="btnCancel">Bekor qilish</button>
+          <button type="submit" class="btn btn-primary" data-i18n="btnSave">Saqlash</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. QUICK ADD POINTS MODAL -->
+  <div id="quickPointModal" class="modal-overlay hidden">
+    <div class="modal-container modal-lg">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="quickPointModalTitle">⚡ O'quvchiga Ball Berish</h3>
+        <button class="btn-close-modal" onclick="app.closeModal('quickPointModal')">&times;</button>
+      </div>
+      <form id="quickPointForm" class="modal-body">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="modalPointGroup"><span data-i18n="stepGroup">Guruh</span> <span class="required">*</span></label>
+            <select id="modalPointGroup" class="select-input" required>
+              <option value="">-- Guruhni tanlang --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="modalPointStudent"><span data-i18n="stepStudent">O'quvchi</span> <span class="required">*</span></label>
+            <select id="modalPointStudent" class="select-input" required disabled>
+              <option value="">-- Avval guruhni tanlang --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label><span data-i18n="stepPoints">Ball miqdori</span> <span class="required">*</span></label>
+          <div class="quick-chips-wrapper">
+            <button type="button" class="point-chip chip-pos" data-modal-val="5">+5</button>
+            <button type="button" class="point-chip chip-pos active" data-modal-val="10">+10</button>
+            <button type="button" class="point-chip chip-pos" data-modal-val="15">+15</button>
+            <button type="button" class="point-chip chip-pos" data-modal-val="20">+20</button>
+            <button type="button" class="point-chip chip-pos" data-modal-val="30">+30</button>
+            <button type="button" class="point-chip chip-neg" data-modal-val="-5">-5</button>
+            <button type="button" class="point-chip chip-neg" data-modal-val="-10">-10</button>
+          </div>
+          <input type="number" id="modalPointCustomVal" class="text-input mt-2" placeholder="Ball (masalan: 10 yoki -5)" value="10" required>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="modalPointCategory"><span data-i18n="stepCategory">Kategoriya</span> <span class="required">*</span></label>
+            <select id="modalPointCategory" class="select-input" required>
+              <option value="Darsdagi faollik">Darsdagi faollik</option>
+              <option value="Uyga vazifa">Uyga vazifa</option>
+              <option value="Qo‘shimcha vazifa">Qo‘shimcha vazifa</option>
+              <option value="Test">Test</option>
+              <option value="Boshqa">Boshqa</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="modalPointDate"><span data-i18n="stepDate">Sana</span> <span class="required">*</span></label>
+            <input type="date" id="modalPointDate" class="text-input" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="modalPointDesc" data-i18n="stepDesc">Izoh / Tavsif</label>
+          <input type="text" id="modalPointDesc" class="text-input" placeholder="Masalan: Darsda a'lo faollik, topshiriq to'liq">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('quickPointModal')" data-i18n="btnCancel">Bekor qilish</button>
+          <button type="submit" class="btn btn-primary" data-i18n="btnApplyPoint">Ballni Biriktirish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. STUDENT PROFILE & POINT HISTORY MODAL -->
+  <div id="studentProfileModal" class="modal-overlay hidden">
+    <div class="modal-container modal-xl">
+      <div class="modal-header">
+        <div class="modal-profile-header">
+          <div class="modal-profile-avatar" id="profAvatar">A</div>
+          <div>
+            <h3 class="modal-title" id="profStudentName">Aliyev Aziz</h3>
+            <span class="badge badge-primary" id="profGroupName">Frontend 10:30</span>
+            <span class="prof-phone-span" id="profStudentPhone"></span>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="app.closeModal('studentProfileModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Stats Summary in Profile -->
+        <div class="profile-stats-grid">
+          <div class="prof-stat-box">
+            <span class="prof-stat-title" data-i18n="profGlobalRank">Umumiy Reyting</span>
+            <span class="prof-stat-value text-primary" id="profGlobalRank">#1</span>
+          </div>
+          <div class="prof-stat-box">
+            <span class="prof-stat-title" data-i18n="profGroupRank">Guruhdagi O'rni</span>
+            <span class="prof-stat-value text-primary" id="profGroupRank">#1</span>
+          </div>
+          <div class="prof-stat-box">
+            <span class="prof-stat-title" data-i18n="profTotalPoints">Jami Ball</span>
+            <span class="prof-stat-value text-success" id="profTotalPoints">0</span>
+          </div>
+          <div class="prof-stat-box">
+            <span class="prof-stat-title" data-i18n="profWeeklyPoints">Haftalik Ball</span>
+            <span class="prof-stat-value" id="profWeeklyPoints">0</span>
+          </div>
+          <div class="prof-stat-box">
+            <span class="prof-stat-title" data-i18n="profMonthlyPoints">Oylik Ball</span>
+            <span class="prof-stat-value" id="profMonthlyPoints">0</span>
+          </div>
+        </div>
+
+        <!-- Categories Breakdown -->
+        <div class="prof-categories-row">
+          <div class="prof-cat-badge cat-class">
+            <span data-i18n="catClass">Darsdagi faollik:</span>
+            <strong id="profClassPoints">0</strong>
+          </div>
+          <div class="prof-cat-badge cat-hw">
+            <span data-i18n="catHomework">Uyga vazifa:</span>
+            <strong id="profHwPoints">0</strong>
+          </div>
+          <div class="prof-cat-badge cat-extra">
+            <span data-i18n="catExtra">Qo'shimcha vazifa:</span>
+            <strong id="profExtraPoints">0</strong>
+          </div>
+          <div class="prof-cat-badge cat-test">
+            <span data-i18n="catTest">Test:</span>
+            <strong id="profTestPoints">0</strong>
+          </div>
+        </div>
+
+        <!-- Point History Section -->
+        <div class="history-section mt-4">
+          <div class="section-header">
+            <h4 class="section-title" data-i18n="pointHistoryTitle">📜 Ballar Tarixi (Xronologiya)</h4>
+            <button class="btn btn-sm btn-primary admin-only" id="profAddPointBtn" data-i18n="addPointToStudent">
+              + Ushbu o'quvchiga ball berish
+            </button>
+          </div>
+
+          <div class="table-responsive max-h-300">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 120px;" data-i18n="thDate">Sana</th>
+                  <th style="width: 100px;" data-i18n="thPoints">Ball</th>
+                  <th data-i18n="thCategory">Kategoriya</th>
+                  <th data-i18n="thDescription">Tavsif / Izoh</th>
+                  <th class="text-center admin-only" style="width: 80px;" data-i18n="thDelete">O'chirish</th>
+                </tr>
+              </thead>
+              <tbody id="profPointHistoryTbody">
+                <!-- Point history dynamic -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="app.closeModal('studentProfileModal')" data-i18n="btnClose">Yopish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. RAW JSON BACKUP / RESTORE MODAL -->
+  <div id="rawJsonModal" class="modal-overlay hidden">
+    <div class="modal-container modal-lg">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="rawJsonModalTitle">JSON Zaxira Matni</h3>
+        <button class="btn-close-modal" onclick="app.closeModal('rawJsonModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-2" data-i18n="rawJsonDesc">Quyidagi matnni nusxalab saqlab qo'yishingiz yoki boshqa zaxira matnini bu yerga qo'yib tiklashingiz mumkin:</p>
+        <textarea id="rawJsonTextarea" class="text-input font-mono" rows="12" placeholder="JSON matni..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="copyRawJsonBtn" data-i18n="btnCopy">
+          📋 Nusxa olish
+        </button>
+        <button type="button" class="btn btn-primary" id="restoreFromRawJsonBtn" data-i18n="btnRestoreFromText">
+          🔄 Ushbu matndan tiklash
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. CONFIRMATION DIALOG MODAL -->
+  <div id="confirmModal" class="modal-overlay hidden">
+    <div class="modal-container modal-sm">
+      <div class="modal-header">
+        <h3 id="confirmModalTitle" class="modal-title text-danger" data-i18n="confirmTitle">Tasdiqlash</h3>
+        <button class="btn-close-modal" onclick="app.closeConfirmModal(false)">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalMessage" class="confirm-message">Rostdan ham ushbu amalni bajarmoqchimisiz?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="app.closeConfirmModal(false)" data-i18n="btnCancel">Bekor qilish</button>
+        <button type="button" id="confirmModalActionBtn" class="btn btn-danger" onclick="app.closeConfirmModal(true)" data-i18n="btnConfirm">Tasdiqlash</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
