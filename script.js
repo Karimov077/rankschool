@@ -24,6 +24,14 @@
     password: 'UDKM1234'
   };
 
+  // Cloud Sync Configuration (kvdb.io — free cloud key-value store)
+  const CLOUD_SYNC = {
+    enabled: true,
+    baseUrl: 'https://kvdb.io/X7nSnNuhtRNBG5eEBiFtFz',
+    key: 'ustozrank_data_v1',
+    timeout: 5000 // ms
+  };
+
   // =========================================================================
   // 2. I18N MULTI-LANGUAGE DICTIONARY (UZ, EN, RU, KK)
   // =========================================================================
@@ -729,34 +737,74 @@
   }
 
   // =========================================================================
-  // 4. STORAGE OPERATIONS
+  // 4. STORAGE OPERATIONS (with Cloud Sync via kvdb.io)
   // =========================================================================
+
+  // --- Cloud Sync Helpers ---
+  async function cloudFetch() {
+    if (!CLOUD_SYNC.enabled) return null;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), CLOUD_SYNC.timeout);
+      const resp = await fetch(`${CLOUD_SYNC.baseUrl}/${CLOUD_SYNC.key}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (!resp.ok) return null;
+      const text = await resp.text();
+      if (!text || text.trim() === '') return null;
+      return JSON.parse(text);
+    } catch (e) {
+      console.warn('Cloud fetch failed (offline or timeout):', e.message);
+      return null;
+    }
+  }
+
+  async function cloudPush(data) {
+    if (!CLOUD_SYNC.enabled) return false;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), CLOUD_SYNC.timeout);
+      const resp = await fetch(`${CLOUD_SYNC.baseUrl}/${CLOUD_SYNC.key}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      return resp.ok;
+    } catch (e) {
+      console.warn('Cloud push failed (offline or timeout):', e.message);
+      return false;
+    }
+  }
+
+  // --- Local Storage (synchronous, always used) ---
   function loadFromStorage() {
     try {
-      // Language
+      // Language (local preference)
       const savedLang = localStorage.getItem(STORAGE_KEYS.LANG);
       if (savedLang && I18N[savedLang]) {
         state.lang = savedLang;
       }
 
-      // Theme
+      // Theme (local preference)
       const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
       if (savedTheme) {
         state.theme = savedTheme;
       } else {
-        // Detect system preference
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         state.theme = prefersDark ? 'dark' : 'light';
       }
       applyTheme(state.theme);
 
-      // Auth
+      // Auth (local — login state is per-device)
       const savedAuth = localStorage.getItem(STORAGE_KEYS.AUTH);
       if (savedAuth) {
         state.auth = { ...state.auth, ...JSON.parse(savedAuth) };
       }
 
-      // Groups, Students, Points
+      // Groups, Students, Points — from localStorage first (instant render)
       const savedGroups = localStorage.getItem(STORAGE_KEYS.GROUPS);
       const savedStudents = localStorage.getItem(STORAGE_KEYS.STUDENTS);
       const savedPoints = localStorage.getItem(STORAGE_KEYS.POINTS);
@@ -766,10 +814,10 @@
         state.students = JSON.parse(savedStudents);
         state.points = JSON.parse(savedPoints);
       } else {
+        // No local data — will be resolved by cloud sync or demo data
         state.groups = [...INITIAL_DEMO_DATA.groups];
         state.students = [...INITIAL_DEMO_DATA.students];
         state.points = [...INITIAL_DEMO_DATA.points];
-        saveAllToStorage();
       }
     } catch (e) {
       console.error('Storage error:', e);
@@ -779,14 +827,60 @@
     }
   }
 
+  // Async cloud load — called after initial render for seamless UX
+  async function loadFromCloud() {
+    const cloudData = await cloudFetch();
+    if (cloudData && cloudData.groups && cloudData.students && cloudData.points) {
+      state.groups = cloudData.groups;
+      state.students = cloudData.students;
+      state.points = cloudData.points;
+      // Also update password if teacher changed it on another device
+      if (cloudData.adminPassword) {
+        state.auth.password = cloudData.adminPassword;
+      }
+      // Persist cloud data locally
+      localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(state.groups));
+      localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(state.students));
+      localStorage.setItem(STORAGE_KEYS.POINTS, JSON.stringify(state.points));
+      if (cloudData.adminPassword) {
+        localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(state.auth));
+      }
+      renderApp();
+      console.log('✅ Cloud data loaded successfully');
+    } else {
+      // No cloud data yet — push current local data to cloud as initial seed
+      await cloudPush({
+        groups: state.groups,
+        students: state.students,
+        points: state.points,
+        adminPassword: state.auth.password,
+        lastUpdated: new Date().toISOString()
+      });
+      console.log('☁️ Initial data seeded to cloud');
+    }
+  }
+
   function saveAllToStorage() {
     try {
+      // Always save to localStorage (instant, offline-safe)
       localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(state.groups));
       localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(state.students));
       localStorage.setItem(STORAGE_KEYS.POINTS, JSON.stringify(state.points));
       localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(state.auth));
       localStorage.setItem(STORAGE_KEYS.LANG, state.lang);
       localStorage.setItem(STORAGE_KEYS.THEME, state.theme);
+
+      // Also push to cloud (async, non-blocking)
+      cloudPush({
+        groups: state.groups,
+        students: state.students,
+        points: state.points,
+        adminPassword: state.auth.password,
+        lastUpdated: new Date().toISOString()
+      }).then(ok => {
+        if (ok) console.log('☁️ Cloud sync OK');
+        else console.warn('☁️ Cloud sync failed — data saved locally only');
+      });
     } catch (e) {
       console.error('Save error:', e);
     }
@@ -2681,6 +2775,9 @@
     }
 
     renderApp();
+
+    // Fetch latest data from cloud (async — updates UI after cloud responds)
+    loadFromCloud();
   });
 
 })();

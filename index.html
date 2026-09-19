@@ -899,7 +899,7 @@
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-            <input type="text" id="modalLoginUsername" placeholder="" required autocomplete="username">
+            <input type="text" id="modalLoginUsername" placeholder="kaludir" required autocomplete="username">
           </div>
         </div>
 
@@ -915,6 +915,10 @@
         </div>
 
         <div id="modalLoginError" class="auth-error-msg hidden"></div>
+
+        <div class="login-hint-box">
+          <span data-i18n="loginDefaultHint">Standart login: <strong>kaludir</strong> | Parol: <strong>UDKM1234</strong></span>
+        </div>
 
         <div class="modal-footer" style="padding-left: 0; padding-right: 0; padding-bottom: 0; background: transparent;">
           <button type="button" class="btn btn-secondary" onclick="app.closeModal('teacherLoginModal')" data-i18n="btnCancel">Bekor qilish</button>
