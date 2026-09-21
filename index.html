@@ -409,6 +409,14 @@
               </svg>
               <span data-i18n="weeklyResetNotice">Hafta tugaganda umumiy ballar saqlanadi, haftalik reyting esa yangilanadi</span>
             </div>
+            <div class="filter-bar">
+              <div class="filter-item">
+                <label for="weeklyFilterGroup" data-i18n="filterGroupLabel">Guruh:</label>
+                <select id="weeklyFilterGroup" class="select-input">
+                  <option value="all">Barcha guruhlar</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="section-card">
@@ -977,6 +985,13 @@
         <div class="form-group">
           <label for="groupDescInput" data-i18n="groupDescInputLabel">Qisqacha tavsif</label>
           <textarea id="groupDescInput" class="text-input" rows="3" placeholder="Masalan: HTML, CSS, JavaScript guruhi"></textarea>
+        </div>
+        <div id="groupTeacherField" class="form-group super-admin-only">
+          <label for="groupTeacherSelect">Mas'ul o‘qituvchi</label>
+          <select id="groupTeacherSelect" class="select-input">
+            <option value="">O‘qituvchi tayinlanmagan</option>
+          </select>
+          <small class="form-hint">Bu guruhni faqat tanlangan o‘qituvchi boshqaradi.</small>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="app.closeModal('groupModal')" data-i18n="btnCancel">Bekor qilish</button>

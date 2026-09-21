@@ -815,6 +815,7 @@
         if (state.auth.isLoggedIn && !state.auth.role) {
           state.auth.role = 'super_admin';
         }
+        state.auth.username = String(state.auth.username || DEFAULT_ADMIN.username).trim().toLowerCase();
       }
 
       // Groups, Students, Points — from localStorage first (instant render)
@@ -836,7 +837,12 @@
         state.students = [...INITIAL_DEMO_DATA.students];
         state.points = [...INITIAL_DEMO_DATA.points];
       }
-      state.teachers = savedTeachers ? JSON.parse(savedTeachers) : [...DEFAULT_TEACHERS];
+      state.teachers = savedTeachers
+        ? JSON.parse(savedTeachers).map(teacher => ({
+          ...teacher,
+          username: String(teacher.username || '').trim().toLowerCase()
+        }))
+        : [...DEFAULT_TEACHERS];
     } catch (e) {
       console.error('Storage error:', e);
       state.groups = [...INITIAL_DEMO_DATA.groups];
@@ -857,7 +863,8 @@
       const localDataChanged = localDataExists && (
         JSON.stringify(state.groups) !== JSON.stringify(cloudData.groups) ||
         JSON.stringify(state.students) !== JSON.stringify(cloudData.students) ||
-        JSON.stringify(state.points) !== JSON.stringify(cloudData.points)
+        JSON.stringify(state.points) !== JSON.stringify(cloudData.points) ||
+        JSON.stringify(state.teachers) !== JSON.stringify(cloudData.teachers || [])
       );
 
       if (localDataChanged) {
@@ -879,7 +886,12 @@
       }));
       state.students = cloudData.students;
       state.points = cloudData.points;
-      state.teachers = Array.isArray(cloudData.teachers) ? cloudData.teachers : [...DEFAULT_TEACHERS];
+      state.teachers = Array.isArray(cloudData.teachers)
+        ? cloudData.teachers.map(teacher => ({
+          ...teacher,
+          username: String(teacher.username || '').trim().toLowerCase()
+        }))
+        : [...DEFAULT_TEACHERS];
       // Also update password if teacher changed it on another device
       if (cloudData.adminPassword) {
         state.auth.password = cloudData.adminPassword;
@@ -906,6 +918,7 @@
       localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(state.groups));
       localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(state.students));
       localStorage.setItem(STORAGE_KEYS.POINTS, JSON.stringify(state.points));
+      localStorage.setItem(STORAGE_KEYS.TEACHERS, JSON.stringify(state.teachers));
       localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(state.auth));
       localStorage.setItem(STORAGE_KEYS.LANG, state.lang);
       localStorage.setItem(STORAGE_KEYS.THEME, state.theme);
@@ -1190,7 +1203,8 @@
     if (isSuperAdmin()) return true;
     if (!state.auth.isLoggedIn || state.auth.role !== 'teacher') return false;
     const group = state.groups.find(item => item.id === groupId);
-    return Boolean(group && (group.teacherId || 'ustoz') === state.auth.username);
+    const assignedTeacher = String(group?.teacherId || 'ustoz').trim().toLowerCase();
+    return Boolean(group && assignedTeacher === String(state.auth.username || '').trim().toLowerCase());
   }
 
   function canManageStudent(studentId) {
@@ -1371,6 +1385,7 @@
     const dropdownIds = [
       'dashFilterGroup',
       'globalFilterGroup',
+      'weeklyFilterGroup',
       'studentsFilterGroup',
       'studentGroupSelect',
       'pointFormGroup',
@@ -1399,6 +1414,17 @@
         select.value = currentVal;
       }
     });
+  }
+
+  function populateTeacherSelect(selectedTeacherId = '') {
+    const select = document.getElementById('groupTeacherSelect');
+    if (!select) return;
+
+    select.innerHTML = '<option value="">O‘qituvchi tayinlanmagan</option>' +
+      state.teachers.map(teacher =>
+        `<option value="${escapeHtml(teacher.username)}">${escapeHtml(teacher.name)} (@${escapeHtml(teacher.username)})</option>`
+      ).join('');
+    select.value = selectedTeacherId || '';
   }
 
   // ----- DASHBOARD RENDER -----
@@ -1572,7 +1598,10 @@
   function renderWeeklyRanking() {
     document.getElementById('currentWeekRangeSubtitle').textContent = `${t('filterPeriodLabel')} ${getCurrentWeekRangeString()}`;
 
-    const list = getAllCalculatedStudents().sort((a, b) => b.weeklyPoints - a.weeklyPoints);
+    const groupFilter = document.getElementById('weeklyFilterGroup')?.value || 'all';
+    const list = getAllCalculatedStudents()
+      .filter(student => groupFilter === 'all' || student.groupId === groupFilter)
+      .sort((a, b) => b.weeklyPoints - a.weeklyPoints);
     const tbody = document.getElementById('weeklyRankingTbody');
 
     if (list.length === 0) {
@@ -1626,6 +1655,8 @@
 
     container.innerHTML = calculatedGroups.map((g, idx) => {
       const rank = idx + 1;
+      const assignedTeacher = state.teachers.find(teacher => teacher.username === g.teacherId);
+      const teacherLabel = assignedTeacher ? assignedTeacher.name : 'Ustoz tayinlanmagan';
       const adminActions = canManageGroup(g.id) ? `
         <div class="table-actions">
           <button class="btn-action-icon" onclick="app.openEditGroupModal('${g.id}')" title="Tahrirlash">
@@ -1651,6 +1682,7 @@
 
             <h3 class="group-card-title">${escapeHtml(g.name)}</h3>
             <p class="group-card-desc">${escapeHtml(g.description || '—')}</p>
+            <p class="group-card-owner">Mas'ul ustoz: ${escapeHtml(teacherLabel)}</p>
 
             <div class="group-card-stats">
               <div class="group-stat-mini">
@@ -1969,6 +2001,7 @@
       document.getElementById('groupEditId').value = '';
       document.getElementById('groupModalTitle').textContent = t('addGroup');
       document.getElementById('groupForm').reset();
+      populateTeacherSelect(isSuperAdmin() ? '' : state.auth.username);
       document.getElementById('groupModal').classList.remove('hidden');
     } else if (modalId === 'addStudentModal') {
       if (!state.auth.isLoggedIn) {
@@ -2009,12 +2042,16 @@
   // =========================================================================
   // 10. ACTIONS: GROUPS, STUDENTS, POINTS
   // =========================================================================
-  function saveGroup(name, description, editId = null) {
+  function saveGroup(name, description, teacherId, editId = null) {
     name = name.trim();
     description = description.trim();
 
     if (!name) {
       showToast('Guruh nomini kiriting', 'warning');
+      return;
+    }
+    if (!state.auth.isLoggedIn) {
+      showToast('Guruh yaratish uchun tizimga kiring', 'warning');
       return;
     }
 
@@ -2027,6 +2064,9 @@
       if (group) {
         group.name = name;
         group.description = description;
+        if (isSuperAdmin()) {
+          group.teacherId = teacherId || null;
+        }
         saveAllToStorage();
         showToast('Guruh muvaffaqiyatli yangilandi', 'success');
       }
@@ -2035,7 +2075,7 @@
         id: 'grp_' + Date.now(),
         name,
         description,
-        teacherId: isSuperAdmin() ? null : state.auth.username,
+        teacherId: isSuperAdmin() ? (teacherId || null) : state.auth.username,
         createdAt: getTodayIsoString()
       };
       state.groups.push(newGroup);
@@ -2063,6 +2103,7 @@
     document.getElementById('groupModalTitle').textContent = t('editGroup');
     document.getElementById('groupNameInput').value = group.name;
     document.getElementById('groupDescInput').value = group.description || '';
+    populateTeacherSelect(group.teacherId || '');
     document.getElementById('groupModal').classList.remove('hidden');
   }
 
@@ -2560,7 +2601,7 @@
       showToast('Ism, login va kamida 4 belgili parol kiriting', 'warning');
       return;
     }
-    if (username === state.auth.username || state.teachers.some(teacher => teacher.username === username)) {
+    if (username === String(state.auth.username || '').trim().toLowerCase() || state.teachers.some(teacher => String(teacher.username).trim().toLowerCase() === username)) {
       showToast('Bu login allaqachon mavjud', 'danger');
       return;
     }
@@ -2579,6 +2620,11 @@
 
     showConfirmDialog('O‘qituvchini o‘chirish', `${teacher.name} akkaunti o‘chirilsinmi?`, () => {
       state.teachers = state.teachers.filter(item => item.id !== teacherId);
+      state.groups.forEach(group => {
+        if (group.teacherId === teacher.username) {
+          group.teacherId = null;
+        }
+      });
       saveAllToStorage();
       renderTeachers();
       showToast('O‘qituvchi akkaunti o‘chirildi', 'warning');
@@ -2589,7 +2635,7 @@
   // 12. AUTH & ROUTING
   // =========================================================================
   function login(username, password) {
-    const cleanUser = username.trim();
+    const cleanUser = username.trim().toLowerCase();
     const cleanPass = password.trim();
     const errorElem = document.getElementById('modalLoginError');
 
@@ -2774,6 +2820,9 @@
     // Global Ranking filter
     document.getElementById('globalFilterGroup')?.addEventListener('change', renderGlobalRanking);
 
+    // Weekly Ranking filter
+    document.getElementById('weeklyFilterGroup')?.addEventListener('change', renderWeeklyRanking);
+
     // Students directory filters
     document.getElementById('studentsFilterGroup')?.addEventListener('change', renderStudents);
     document.getElementById('studentsSearchInput')?.addEventListener('input', renderStudents);
@@ -2854,8 +2903,9 @@
       e.preventDefault();
       const name = document.getElementById('groupNameInput').value;
       const desc = document.getElementById('groupDescInput').value;
+      const teacherId = document.getElementById('groupTeacherSelect')?.value || '';
       const editId = document.getElementById('groupEditId').value;
-      saveGroup(name, desc, editId);
+      saveGroup(name, desc, teacherId, editId);
     });
 
     // Student Modal Submit

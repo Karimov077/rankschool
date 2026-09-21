@@ -181,6 +181,14 @@ body.is-super-admin .super-admin-only.section-card {
   display: block !important;
 }
 
+.super-admin-only.form-group {
+  display: none !important;
+}
+
+body.is-super-admin .super-admin-only.form-group {
+  display: block !important;
+}
+
 .teacher-list-row {
   display: flex;
   align-items: center;
@@ -193,6 +201,12 @@ body.is-super-admin .super-admin-only.section-card {
 .teacher-list-row strong,
 .teacher-list-row span {
   display: block;
+}
+
+.group-card-owner {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 8px;
 }
 
 .teacher-list-row span {
