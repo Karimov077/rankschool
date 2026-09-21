@@ -24,6 +24,11 @@
     password: 'UDKM1234'
   };
 
+  const TEACHER_ACCOUNT = {
+    username: 'ustoz',
+    password: 'Ustoz1234'
+  };
+
   // Cloud Sync Configuration (kvdb.io — free cloud key-value store)
   const CLOUD_SYNC = {
     enabled: true,
@@ -721,7 +726,8 @@
     auth: {
       isLoggedIn: false, // Default: public view for students and parents!
       username: DEFAULT_ADMIN.username,
-      password: DEFAULT_ADMIN.password
+      password: DEFAULT_ADMIN.password,
+      role: null
     },
     lang: 'uz',
     theme: 'light',
@@ -805,6 +811,9 @@
       const savedAuth = localStorage.getItem(STORAGE_KEYS.AUTH);
       if (savedAuth) {
         state.auth = { ...state.auth, ...JSON.parse(savedAuth) };
+        if (state.auth.isLoggedIn && !state.auth.role) {
+          state.auth.role = 'super_admin';
+        }
       }
 
       // Groups, Students, Points — from localStorage first (instant render)
@@ -1160,6 +1169,10 @@
   // =========================================================================
   // 8. RENDERERS & ROLE CONTROL
   // =========================================================================
+  function isSuperAdmin() {
+    return state.auth.isLoggedIn && state.auth.role === 'super_admin';
+  }
+
   function renderApp() {
     // 1. Update Body Role Class
     if (state.auth.isLoggedIn) {
@@ -1167,6 +1180,7 @@
     } else {
       document.body.classList.remove('is-admin');
     }
+    document.body.classList.toggle('is-super-admin', isSuperAdmin());
 
     // 2. Render Header Auth Elements
     renderHeaderAuth();
@@ -1210,9 +1224,9 @@
         renderStatistics();
         break;
       case 'data-management':
-        if (!state.auth.isLoggedIn) {
+        if (!isSuperAdmin()) {
           navigate('dashboard');
-          showToast("Ushbu bo'lim faqat ustoz uchun mavjud", 'warning');
+          showToast("Bu bo'lim faqat super admin uchun mavjud", 'warning');
           return;
         }
         break;
@@ -1263,11 +1277,12 @@
     if (!box) return;
 
     if (state.auth.isLoggedIn) {
+      const roleLabel = isSuperAdmin() ? 'Super Admin' : "O'qituvchi";
       box.innerHTML = `
         <div class="user-status-left">
           <div class="user-status-avatar">U</div>
           <div>
-            <span class="user-status-name">${t('teacherActiveTag')}</span>
+            <span class="user-status-name">${roleLabel}</span>
             <span class="user-status-desc text-success">${t('activeSession')}</span>
           </div>
         </div>
@@ -2444,12 +2459,16 @@
     const cleanPass = password.trim();
     const errorElem = document.getElementById('modalLoginError');
 
-    if (cleanUser === state.auth.username && cleanPass === state.auth.password) {
+    const isSuperAdminLogin = cleanUser === state.auth.username && cleanPass === state.auth.password;
+    const isTeacherLogin = cleanUser === TEACHER_ACCOUNT.username && cleanPass === TEACHER_ACCOUNT.password;
+
+    if (isSuperAdminLogin || isTeacherLogin) {
       state.auth.isLoggedIn = true;
+      state.auth.role = isSuperAdminLogin ? 'super_admin' : 'teacher';
       saveAllToStorage();
       if (errorElem) errorElem.classList.add('hidden');
       closeModal('teacherLoginModal');
-      showToast('Xush kelibsiz, Hurmatli Ustoz! (Admin paneli ochildi)', 'success');
+      showToast(isSuperAdminLogin ? 'Super admin paneli ochildi' : 'Oqituvchi paneli ochildi', 'success');
       renderApp();
     } else {
       if (errorElem) {
@@ -2461,6 +2480,7 @@
 
   function logout() {
     state.auth.isLoggedIn = false;
+    state.auth.role = null;
     saveAllToStorage();
     showToast('Tizimdan chiqildi. Ota-onalar va o\'quvchilar rejimiga o\'tildi.', 'warning');
     if (state.currentView === 'add-points' || state.currentView === 'data-management') {
@@ -2471,6 +2491,10 @@
   }
 
   function changePassword(newPass, confirmPass) {
+    if (!isSuperAdmin()) {
+      showToast('Parolni faqat super admin o‘zgartira oladi', 'warning');
+      return;
+    }
     if (newPass.length < 4) {
       showToast('Parol kamida 4 ta belgidan iborat bo\'lishi kerak', 'warning');
       return;
