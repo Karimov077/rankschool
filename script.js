@@ -851,15 +851,8 @@
       renderApp();
       console.log('✅ Cloud data loaded successfully');
     } else {
-      // No cloud data yet — push current local data to cloud as initial seed
-      await cloudPush({
-        groups: state.groups,
-        students: state.students,
-        points: state.points,
-        adminPassword: state.auth.password,
-        lastUpdated: new Date().toISOString()
-      });
-      console.log('☁️ Initial data seeded to cloud');
+      // Never overwrite shared data with demo data when the API is unavailable.
+      console.warn('☁️ Cloud data unavailable; keeping local data without overwriting cloud');
     }
   }
 
