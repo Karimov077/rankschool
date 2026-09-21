@@ -177,6 +177,34 @@ body.is-super-admin .super-admin-only.nav-link {
   display: flex !important;
 }
 
+body.is-super-admin .super-admin-only.section-card {
+  display: block !important;
+}
+
+.teacher-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.teacher-list-row strong,
+.teacher-list-row span {
+  display: block;
+}
+
+.teacher-list-row span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.teacher-form-action {
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
 /* ==================== TYPOGRAPHY & HELPERS ==================== */
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-main);

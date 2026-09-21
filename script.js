@@ -15,6 +15,7 @@
     GROUPS: 'ustoz_rank_groups_v1',
     STUDENTS: 'ustoz_rank_students_v1',
     POINTS: 'ustoz_rank_points_v1',
+    TEACHERS: 'ustoz_rank_teachers_v1',
     THEME: 'ustoz_rank_theme_v1',
     LANG: 'ustoz_rank_lang_v1'
   };
@@ -24,10 +25,9 @@
     password: 'UDKM1234'
   };
 
-  const TEACHER_ACCOUNT = {
-    username: 'ustoz',
-    password: 'Ustoz1234'
-  };
+  const DEFAULT_TEACHERS = [
+    { id: 'teacher_default', name: 'Asosiy o‘qituvchi', username: 'ustoz', password: 'Ustoz1234' }
+  ];
 
   // Cloud Sync Configuration (kvdb.io — free cloud key-value store)
   const CLOUD_SYNC = {
@@ -734,6 +734,7 @@
     groups: [],
     students: [],
     points: [],
+    teachers: [...DEFAULT_TEACHERS],
     currentView: 'dashboard',
     activeGroupId: null,
     confirmCallback: null
@@ -820,6 +821,7 @@
       const savedGroups = localStorage.getItem(STORAGE_KEYS.GROUPS);
       const savedStudents = localStorage.getItem(STORAGE_KEYS.STUDENTS);
       const savedPoints = localStorage.getItem(STORAGE_KEYS.POINTS);
+      const savedTeachers = localStorage.getItem(STORAGE_KEYS.TEACHERS);
 
       if (savedGroups && savedStudents && savedPoints) {
         state.groups = JSON.parse(savedGroups);
@@ -831,6 +833,7 @@
         state.students = [...INITIAL_DEMO_DATA.students];
         state.points = [...INITIAL_DEMO_DATA.points];
       }
+      state.teachers = savedTeachers ? JSON.parse(savedTeachers) : [...DEFAULT_TEACHERS];
     } catch (e) {
       console.error('Storage error:', e);
       state.groups = [...INITIAL_DEMO_DATA.groups];
@@ -859,6 +862,7 @@
           groups: state.groups,
           students: state.students,
           points: state.points,
+          teachers: state.teachers,
           adminPassword: state.auth.password,
           lastUpdated: new Date().toISOString()
         });
@@ -869,6 +873,7 @@
       state.groups = cloudData.groups;
       state.students = cloudData.students;
       state.points = cloudData.points;
+      state.teachers = Array.isArray(cloudData.teachers) ? cloudData.teachers : [...DEFAULT_TEACHERS];
       // Also update password if teacher changed it on another device
       if (cloudData.adminPassword) {
         state.auth.password = cloudData.adminPassword;
@@ -877,6 +882,7 @@
       localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(state.groups));
       localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(state.students));
       localStorage.setItem(STORAGE_KEYS.POINTS, JSON.stringify(state.points));
+      localStorage.setItem(STORAGE_KEYS.TEACHERS, JSON.stringify(state.teachers));
       if (cloudData.adminPassword) {
         localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(state.auth));
       }
@@ -903,6 +909,7 @@
         groups: state.groups,
         students: state.students,
         points: state.points,
+        teachers: state.teachers,
         adminPassword: state.auth.password,
         lastUpdated: new Date().toISOString()
       };
@@ -1187,6 +1194,7 @@
 
     // 3. Render Sidebar User Status Card
     renderSidebarUserStatus();
+    renderTeachers();
 
     // 4. Update Header Date & Dropdowns
     updateHeaderDate();
@@ -1311,6 +1319,27 @@
         </button>
       `;
     }
+  }
+
+  function renderTeachers() {
+    const list = document.getElementById('teachersList');
+    if (!list) return;
+
+    list.innerHTML = state.teachers.map(teacher => `
+      <div class="teacher-list-row">
+        <div>
+          <strong>${escapeHtml(teacher.name)}</strong>
+          <span>@${escapeHtml(teacher.username)}</span>
+        </div>
+        <button class="btn btn-danger btn-sm" type="button" data-delete-teacher="${escapeHtml(teacher.id)}" ${teacher.id === 'teacher_default' ? 'disabled title="Asosiy o‘qituvchini o‘chirish mumkin emas"' : ''}>
+          O'chirish
+        </button>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('[data-delete-teacher]').forEach(button => {
+      button.addEventListener('click', () => removeTeacher(button.dataset.deleteTeacher));
+    });
   }
 
   function updateHeaderDate() {
@@ -2451,6 +2480,41 @@
     );
   }
 
+  function addTeacher(name, username, password) {
+    if (!isSuperAdmin()) return;
+    name = name.trim();
+    username = username.trim().toLowerCase();
+    password = password.trim();
+
+    if (!name || !username || password.length < 4) {
+      showToast('Ism, login va kamida 4 belgili parol kiriting', 'warning');
+      return;
+    }
+    if (username === state.auth.username || state.teachers.some(teacher => teacher.username === username)) {
+      showToast('Bu login allaqachon mavjud', 'danger');
+      return;
+    }
+
+    state.teachers.push({ id: `teacher_${Date.now()}`, name, username, password });
+    saveAllToStorage();
+    document.getElementById('teacherForm')?.reset();
+    renderTeachers();
+    showToast('O‘qituvchi muvaffaqiyatli tayinlandi', 'success');
+  }
+
+  function removeTeacher(teacherId) {
+    if (!isSuperAdmin() || teacherId === 'teacher_default') return;
+    const teacher = state.teachers.find(item => item.id === teacherId);
+    if (!teacher) return;
+
+    showConfirmDialog('O‘qituvchini o‘chirish', `${teacher.name} akkaunti o‘chirilsinmi?`, () => {
+      state.teachers = state.teachers.filter(item => item.id !== teacherId);
+      saveAllToStorage();
+      renderTeachers();
+      showToast('O‘qituvchi akkaunti o‘chirildi', 'warning');
+    });
+  }
+
   // =========================================================================
   // 12. AUTH & ROUTING
   // =========================================================================
@@ -2460,7 +2524,8 @@
     const errorElem = document.getElementById('modalLoginError');
 
     const isSuperAdminLogin = cleanUser === state.auth.username && cleanPass === state.auth.password;
-    const isTeacherLogin = cleanUser === TEACHER_ACCOUNT.username && cleanPass === TEACHER_ACCOUNT.password;
+    const teacher = state.teachers.find(item => item.username === cleanUser && item.password === cleanPass);
+    const isTeacherLogin = Boolean(teacher);
 
     if (isSuperAdminLogin || isTeacherLogin) {
       state.auth.isLoggedIn = true;
@@ -2760,6 +2825,16 @@
     document.getElementById('clearAllDataBtn')?.addEventListener('click', clearAllDataPrompt);
 
     document.getElementById('loadDemoDataBtn')?.addEventListener('click', loadDemoDataPrompt);
+
+    // Password Change Submit
+    document.getElementById('teacherForm')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      addTeacher(
+        document.getElementById('teacherNameInput').value,
+        document.getElementById('teacherUsernameInput').value,
+        document.getElementById('teacherPasswordInput').value
+      );
+    });
 
     // Password Change Submit
     document.getElementById('changePasswordForm')?.addEventListener('submit', (e) => {

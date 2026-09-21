@@ -845,6 +845,38 @@
             </button>
           </div>
 
+          <!-- Teacher Management (Super Admin Only) -->
+          <div class="section-card mt-4 super-admin-only">
+            <div class="section-header">
+              <div>
+                <h3 class="section-title">O‘qituvchilarni tayinlash</h3>
+                <p class="section-subtitle">O‘qituvchi akkauntlarini yarating va boshqaring</p>
+              </div>
+            </div>
+            <form id="teacherForm" class="password-change-form">
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="teacherNameInput">O‘qituvchi ismi</label>
+                  <input type="text" id="teacherNameInput" class="text-input" placeholder="Masalan: Ali Valiyev" required>
+                </div>
+                <div class="form-group">
+                  <label for="teacherUsernameInput">Login</label>
+                  <input type="text" id="teacherUsernameInput" class="text-input" placeholder="Masalan: ali_teacher" required>
+                </div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="teacherPasswordInput">Vaqtinchalik parol</label>
+                  <input type="password" id="teacherPasswordInput" class="text-input" minlength="4" required>
+                </div>
+                <div class="form-group form-actions-row teacher-form-action">
+                  <button type="submit" class="btn btn-primary">O‘qituvchi qo‘shish</button>
+                </div>
+              </div>
+            </form>
+            <div id="teachersList" class="teachers-list"></div>
+          </div>
+
           <!-- Change Admin Password Card -->
           <div class="section-card mt-4">
             <div class="section-header">
