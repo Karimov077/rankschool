@@ -824,7 +824,10 @@
       const savedTeachers = localStorage.getItem(STORAGE_KEYS.TEACHERS);
 
       if (savedGroups && savedStudents && savedPoints) {
-        state.groups = JSON.parse(savedGroups);
+        state.groups = JSON.parse(savedGroups).map(group => ({
+          ...group,
+          teacherId: group.teacherId || 'ustoz'
+        }));
         state.students = JSON.parse(savedStudents);
         state.points = JSON.parse(savedPoints);
       } else {
@@ -870,7 +873,10 @@
         return;
       }
 
-      state.groups = cloudData.groups;
+      state.groups = cloudData.groups.map(group => ({
+        ...group,
+        teacherId: group.teacherId || 'ustoz'
+      }));
       state.students = cloudData.students;
       state.points = cloudData.points;
       state.teachers = Array.isArray(cloudData.teachers) ? cloudData.teachers : [...DEFAULT_TEACHERS];
@@ -1180,6 +1186,18 @@
     return state.auth.isLoggedIn && state.auth.role === 'super_admin';
   }
 
+  function canManageGroup(groupId) {
+    if (isSuperAdmin()) return true;
+    if (!state.auth.isLoggedIn || state.auth.role !== 'teacher') return false;
+    const group = state.groups.find(item => item.id === groupId);
+    return Boolean(group && (group.teacherId || 'ustoz') === state.auth.username);
+  }
+
+  function canManageStudent(studentId) {
+    const student = state.students.find(item => item.id === studentId);
+    return Boolean(student && canManageGroup(student.groupId));
+  }
+
   function renderApp() {
     // 1. Update Body Role Class
     if (state.auth.isLoggedIn) {
@@ -1368,7 +1386,11 @@
 
       let html = isFilter ? `<option value="all">${t('filterAllGroups')}</option>` : '<option value="">-- ' + t('stepGroup') + ' --</option>';
 
-      state.groups.forEach(g => {
+      const availableGroups = state.auth.role === 'teacher'
+        ? state.groups.filter(group => canManageGroup(group.id))
+        : state.groups;
+
+      availableGroups.forEach(g => {
         html += `<option value="${g.id}">${escapeHtml(g.name)}</option>`;
       });
 
@@ -1475,7 +1497,7 @@
 
       const pointsToDisplay = timeFilter === 'week' ? s.weeklyPoints : (timeFilter === 'month' ? s.monthlyPoints : s.totalPoints);
 
-      const adminQuickBtn = state.auth.isLoggedIn
+      const adminQuickBtn = canManageGroup(s.groupId)
         ? `<button class="btn btn-sm btn-primary" onclick="app.openQuickPointModal('${s.groupId}', '${s.id}')" title="Ball berish">+ ${t('thPoints')}</button>`
         : '';
 
@@ -1523,7 +1545,7 @@
       const rankNum = idx + 1;
       let badgeClass = rankNum <= 3 ? `rank-${rankNum}` : 'rank-other';
 
-      const adminQuickBtn = state.auth.isLoggedIn
+      const adminQuickBtn = canManageGroup(s.groupId)
         ? `<button class="btn btn-sm btn-secondary" onclick="app.openQuickPointModal('${s.groupId}', '${s.id}')">+ ${t('thPoints')}</button>`
         : `<button class="btn-action-icon primary" onclick="app.openStudentProfile('${s.id}')" title="Profil"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button>`;
 
@@ -1562,7 +1584,7 @@
       const rankNum = idx + 1;
       let badgeClass = rankNum <= 3 ? `rank-${rankNum}` : 'rank-other';
 
-      const actionBtn = state.auth.isLoggedIn
+      const actionBtn = canManageGroup(s.groupId)
         ? `<button class="btn btn-sm btn-primary" onclick="app.openQuickPointModal('${s.groupId}', '${s.id}')">⚡ + ${t('thPoints')}</button>`
         : `<button class="btn btn-sm btn-secondary" onclick="app.openStudentProfile('${s.id}')">Profil</button>`;
 
@@ -1604,7 +1626,7 @@
 
     container.innerHTML = calculatedGroups.map((g, idx) => {
       const rank = idx + 1;
-      const adminActions = state.auth.isLoggedIn ? `
+      const adminActions = canManageGroup(g.id) ? `
         <div class="table-actions">
           <button class="btn-action-icon" onclick="app.openEditGroupModal('${g.id}')" title="Tahrirlash">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
@@ -1615,7 +1637,7 @@
         </div>
       ` : '';
 
-      const addStudentBtn = state.auth.isLoggedIn
+      const addStudentBtn = canManageGroup(g.id)
         ? `<button class="btn btn-secondary btn-sm" onclick="app.openAddStudentForGroup('${g.id}')" title="${t('addStudent')}">${t('addStudent')}</button>`
         : '';
 
@@ -1680,6 +1702,7 @@
 
     document.getElementById('editCurrentGroupBtn').onclick = () => app.openEditGroupModal(group.id);
     document.getElementById('groupAddStudentBtn').onclick = () => app.openAddStudentForGroup(group.id);
+    document.querySelector('.group-hero-actions').style.display = canManageGroup(group.id) ? '' : 'none';
 
     const studentsInGroup = getAllCalculatedStudents()
       .filter(s => s.groupId === group.id)
@@ -1703,7 +1726,7 @@
       const rankNum = idx + 1;
       let badgeClass = rankNum <= 3 ? `rank-${rankNum}` : 'rank-other';
 
-      const actionBtn = state.auth.isLoggedIn
+      const actionBtn = canManageGroup(group.id)
         ? `<button class="btn btn-sm btn-primary" onclick="app.openQuickPointModal('${group.id}', '${s.id}')">+ ${t('thPoints')}</button>`
         : `<button class="btn-action-icon primary" onclick="app.openStudentProfile('${s.id}')" title="Profil"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button>`;
 
@@ -1763,7 +1786,7 @@
     tbody.innerHTML = list.map(s => {
       const gRank = globalRankMap.get(s.id) || '—';
 
-      const actions = state.auth.isLoggedIn ? `
+      const actions = canManageStudent(s.id) ? `
         <div class="table-actions">
           <button class="btn btn-sm btn-primary" onclick="app.openQuickPointModal('${s.groupId}', '${s.id}')" title="Ball berish">
             + ${t('thPoints')}
@@ -1996,6 +2019,10 @@
     }
 
     if (editId) {
+      if (!canManageGroup(editId)) {
+        showToast('Siz bu guruhni boshqara olmaysiz', 'danger');
+        return;
+      }
       const group = state.groups.find(g => g.id === editId);
       if (group) {
         group.name = name;
@@ -2008,6 +2035,7 @@
         id: 'grp_' + Date.now(),
         name,
         description,
+        teacherId: isSuperAdmin() ? null : state.auth.username,
         createdAt: getTodayIsoString()
       };
       state.groups.push(newGroup);
@@ -2024,6 +2052,10 @@
       openModal('teacherLoginModal');
       return;
     }
+    if (!canManageGroup(groupId)) {
+      showToast('Siz bu guruhni boshqara olmaysiz', 'danger');
+      return;
+    }
     const group = state.groups.find(g => g.id === groupId);
     if (!group) return;
 
@@ -2037,6 +2069,10 @@
   function deleteGroupPrompt(groupId) {
     if (!state.auth.isLoggedIn) {
       openModal('teacherLoginModal');
+      return;
+    }
+    if (!canManageGroup(groupId)) {
+      showToast('Siz bu guruhni o‘chira olmaysiz', 'danger');
       return;
     }
     const group = state.groups.find(g => g.id === groupId);
@@ -2080,8 +2116,16 @@
       showToast('O\'quvchi ismi va guruhini tanlang', 'warning');
       return;
     }
+    if (!canManageGroup(groupId)) {
+      showToast('Siz faqat o‘z guruhingizga o‘quvchi qo‘sha olasiz', 'danger');
+      return;
+    }
 
     if (editId) {
+      if (!canManageStudent(editId)) {
+        showToast('Siz bu o‘quvchini boshqara olmaysiz', 'danger');
+        return;
+      }
       const student = state.students.find(s => s.id === editId);
       if (student) {
         student.name = name;
@@ -2126,6 +2170,10 @@
       openModal('teacherLoginModal');
       return;
     }
+    if (!canManageStudent(studentId)) {
+      showToast('Siz bu o‘quvchini boshqara olmaysiz', 'danger');
+      return;
+    }
     const student = state.students.find(s => s.id === studentId);
     if (!student) return;
 
@@ -2144,6 +2192,10 @@
       openModal('teacherLoginModal');
       return;
     }
+    if (!canManageGroup(groupId)) {
+      showToast('Siz faqat o‘z guruhingizga o‘quvchi qo‘sha olasiz', 'danger');
+      return;
+    }
     document.getElementById('studentEditId').value = '';
     document.getElementById('studentModalTitle').textContent = t('addStudent');
     document.getElementById('studentForm').reset();
@@ -2155,6 +2207,10 @@
   function deleteStudentPrompt(studentId) {
     if (!state.auth.isLoggedIn) {
       openModal('teacherLoginModal');
+      return;
+    }
+    if (!canManageStudent(studentId)) {
+      showToast('Siz bu o‘quvchini o‘chira olmaysiz', 'danger');
       return;
     }
     const student = state.students.find(s => s.id === studentId);
@@ -2220,7 +2276,7 @@
         else if (record.category === 'Qo‘shimcha vazifa') catClass = 'cat-pill-extra';
         else if (record.category === 'Test') catClass = 'cat-pill-test';
 
-        const deleteCol = state.auth.isLoggedIn ? `
+        const deleteCol = canManageStudent(student.id) ? `
           <td class="text-center admin-only">
             <button class="btn-action-icon danger" onclick="app.deletePointRecord('${record.id}', '${student.id}')" title="Ushbu yozuvni bekor qilish">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -2244,7 +2300,9 @@
       }).join('');
     }
 
-    document.getElementById('profAddPointBtn').onclick = () => {
+    const profileAddPointButton = document.getElementById('profAddPointBtn');
+    profileAddPointButton.classList.toggle('hidden', !canManageStudent(student.id));
+    profileAddPointButton.onclick = () => {
       openQuickPointModal(student.groupId, student.id);
     };
 
@@ -2254,6 +2312,10 @@
   function deletePointRecord(pointId, studentId) {
     if (!state.auth.isLoggedIn) {
       openModal('teacherLoginModal');
+      return;
+    }
+    if (!canManageStudent(studentId)) {
+      showToast('Siz bu o‘quvchining ballarini o‘zgartira olmaysiz', 'danger');
       return;
     }
     showConfirmDialog(
@@ -2272,6 +2334,10 @@
   function addPoints(groupId, studentId, points, category, description, date) {
     if (!state.auth.isLoggedIn) {
       openModal('teacherLoginModal');
+      return false;
+    }
+    if (!canManageGroup(groupId) || !canManageStudent(studentId)) {
+      showToast('Siz faqat o‘z guruhingizdagi o‘quvchiga ball bera olasiz', 'danger');
       return false;
     }
 
@@ -2314,6 +2380,10 @@
   function openQuickPointModal(prefillGroupId = '', prefillStudentId = '') {
     if (!state.auth.isLoggedIn) {
       openModal('teacherLoginModal');
+      return;
+    }
+    if (prefillGroupId && !canManageGroup(prefillGroupId)) {
+      showToast('Siz faqat o‘z guruhingizga ball bera olasiz', 'danger');
       return;
     }
 
