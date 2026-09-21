@@ -2946,6 +2946,10 @@
 
     document.getElementById('loadDemoDataBtn')?.addEventListener('click', loadDemoDataPrompt);
 
+    document.getElementById('jumpToTeachersBtn')?.addEventListener('click', () => {
+      document.getElementById('teacherManagementSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
     // Password Change Submit
     document.getElementById('teacherForm')?.addEventListener('submit', (e) => {
       e.preventDefault();
