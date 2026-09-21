@@ -52,6 +52,11 @@ O'qituvchilar, o'quvchilar va ota-onalar uchun maxsus yaratilgan, faqat **HTML5,
 `index.html` faylini istalgan brauzerda ochish kifoya.
 
 ### 2. Vercel ga Yuklash
-Loyiha 100% statik frontend (hech qanday Node.js backend talab qilmaydi):
-1. Papkani GitHub-ga yuklang (`git push`).
-2. [vercel.com](https://vercel.com) da "New Project" qilib ushbu repozitoriyni tanlang va "Deploy" tugmasini bosing.
+Ilova ma'lumotlarni barcha qurilmalar o'rtasida sinxronlash uchun Vercel serverless API route'dan foydalanadi.
+
+1. `index.html`, `script.js`, `style.css`, `api/data.js` va `vercel.json` fayllarini GitHub-ga yuklang (`git push`).
+2. [vercel.com](https://vercel.com) da **New Project** qilib ushbu repozitoriyni tanlang.
+3. Build command va Output directory'ni bo'sh qoldiring, so'ng **Deploy** tugmasini bosing.
+4. Deploy tugagach, saytni ikki xil qurilmada ochib tekshiring. Ustoz kiritgan yangi guruh, o'quvchi va ball ikkinchi qurilmada ham chiqadi.
+
+`/api/data` route cloud storage bilan server tomonda bog'lanadi. Shu sababli brauzerning CORS cheklovi va faqat bitta qurilmaga tegishli `localStorage` muammosi yo'qoladi.

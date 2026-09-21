@@ -27,10 +27,13 @@
   // Cloud Sync Configuration (kvdb.io — free cloud key-value store)
   const CLOUD_SYNC = {
     enabled: true,
-    baseUrl: 'https://kvdb.io/X7nSnNuhtRNBG5eEBiFtFz',
+    // Same-origin Vercel function avoids browser CORS failures when syncing.
+    baseUrl: '/api/data',
     key: 'ustozrank_data_v1',
     timeout: 5000 // ms
   };
+
+  let cloudWriteQueue = Promise.resolve();
 
   // =========================================================================
   // 2. I18N MULTI-LANGUAGE DICTIONARY (UZ, EN, RU, KK)
@@ -746,7 +749,7 @@
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), CLOUD_SYNC.timeout);
-      const resp = await fetch(`${CLOUD_SYNC.baseUrl}/${CLOUD_SYNC.key}`, {
+      const resp = await fetch(`${CLOUD_SYNC.baseUrl}?key=${encodeURIComponent(CLOUD_SYNC.key)}`, {
         signal: controller.signal
       });
       clearTimeout(timeoutId);
@@ -765,7 +768,7 @@
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), CLOUD_SYNC.timeout);
-      const resp = await fetch(`${CLOUD_SYNC.baseUrl}/${CLOUD_SYNC.key}`, {
+      const resp = await fetch(`${CLOUD_SYNC.baseUrl}?key=${encodeURIComponent(CLOUD_SYNC.key)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -870,14 +873,15 @@
       localStorage.setItem(STORAGE_KEYS.LANG, state.lang);
       localStorage.setItem(STORAGE_KEYS.THEME, state.theme);
 
-      // Also push to cloud (async, non-blocking)
-      cloudPush({
+      // Queue cloud writes so rapid edits cannot overwrite one another out of order.
+      const cloudData = {
         groups: state.groups,
         students: state.students,
         points: state.points,
         adminPassword: state.auth.password,
         lastUpdated: new Date().toISOString()
-      }).then(ok => {
+      };
+      cloudWriteQueue = cloudWriteQueue.then(() => cloudPush(cloudData)).then(ok => {
         if (ok) console.log('☁️ Cloud sync OK');
         else console.warn('☁️ Cloud sync failed — data saved locally only');
       });

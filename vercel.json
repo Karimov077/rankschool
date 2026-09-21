@@ -3,6 +3,10 @@
   "cleanUrls": true,
   "routes": [
     {
+      "src": "/api/data",
+      "dest": "/api/data.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
