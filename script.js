@@ -834,6 +834,29 @@
   async function loadFromCloud() {
     const cloudData = await cloudFetch();
     if (cloudData && cloudData.groups && cloudData.students && cloudData.points) {
+      const localDataExists = Boolean(
+        localStorage.getItem(STORAGE_KEYS.GROUPS) &&
+        localStorage.getItem(STORAGE_KEYS.STUDENTS) &&
+        localStorage.getItem(STORAGE_KEYS.POINTS)
+      );
+      const localDataChanged = localDataExists && (
+        JSON.stringify(state.groups) !== JSON.stringify(cloudData.groups) ||
+        JSON.stringify(state.students) !== JSON.stringify(cloudData.students) ||
+        JSON.stringify(state.points) !== JSON.stringify(cloudData.points)
+      );
+
+      if (localDataChanged) {
+        await cloudPush({
+          groups: state.groups,
+          students: state.students,
+          points: state.points,
+          adminPassword: state.auth.password,
+          lastUpdated: new Date().toISOString()
+        });
+        console.log('☁️ Local changes pushed to cloud');
+        return;
+      }
+
       state.groups = cloudData.groups;
       state.students = cloudData.students;
       state.points = cloudData.points;
